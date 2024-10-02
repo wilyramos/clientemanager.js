@@ -9,6 +9,11 @@ const fechaInput = document.querySelector('#fecha');
 const formulario = document.querySelector('#formulario-cliente');
 const tableClients = document.querySelector('#tabla-clientes');
 
+// buttons
+
+const btnDelete = document.querySelector('.btn-delete');
+const btnEdit = document.querySelector('.btn-edit');
+
 
 
 // Event Listeners
@@ -20,6 +25,9 @@ companyInput.addEventListener('change', datosClient);
 fechaInput.addEventListener('change', datosClient);
 
 formulario.addEventListener('submit', submitClient);
+
+// btns delete and edit
+
 
 // Object of client
 
@@ -34,7 +42,7 @@ const clientObject = {
 
 function datosClient(e) {
     clientObject[e.target.name] = e.target.value;
-    console.log(clientObject);
+    // console.log(clientObject);
 }
 
 function submitClient(e) {
@@ -134,11 +142,28 @@ class Clients {
             `;
             const btnDelete = document.createElement('button');
             btnDelete.textContent = 'Eliminar';
-            btnDelete.classList.add('bg-red-500', 'hover:bg-red-700', 'text-white', 'font', 'p-2', 'rounded', 'shadow');
+            btnDelete.classList.add('bg-red-500', 'hover:bg-red-700', 'text-white', 'font', 'p-2', 'rounded', 'shadow', 'btn-delete');
+
+            // copy client object
+            const clientObjectCopy = [...this.clients];
+
+            //event listener para eliminar cliente
+            btnDelete.onclick = () => {
+                editClient(clientObjectCopy);
+            }
+
+
 
             const btnEdit = document.createElement('button');
             btnEdit.textContent = 'Editar';
-            btnEdit.classList.add('bg-green-500', 'hover:bg-green-700', 'text-white', 'font', 'p-2', 'rounded', 'shadow', 'mr-2');
+            btnEdit.classList.add('bg-green-500', 'hover:bg-green-700', 'text-white', 'font', 'p-2', 'rounded', 'shadow', 'mr-2', 'btn-edit');
+
+            //event listener para editar cliente
+            btnEdit.onclick = () => {
+                editClient(clientObjectCopy);
+                
+            }
+            
 
 
 
@@ -166,6 +191,10 @@ function resetObject() {
     clientObject.company = '';
     clientObject.fecha = '';
 }   
+
+function editClient(client) {
+    console.log(client);
+}
 
 
 
