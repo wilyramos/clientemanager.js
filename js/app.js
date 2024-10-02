@@ -32,6 +32,7 @@ formulario.addEventListener('submit', submitClient);
 // Object of client
 
 const clientObject = {
+    id: generateId(),
     name: '',
     email: '',
     phone: '',
@@ -48,6 +49,7 @@ function datosClient(e) {
 function submitClient(e) {
     e.preventDefault();
     
+    console.log(clientObject);
     if(Object.values(clientObject).some(value => value.trim() === '')) {
         new Notification({
             title: 'Error',
@@ -119,6 +121,8 @@ class Clients {
         this.showClients();
     }
 
+    
+
     showClients() {
         // Limpiar HTML
 
@@ -185,6 +189,7 @@ class Clients {
 // utilities
 
 function resetObject() {
+    clientObject.id = generateId();
     clientObject.name = '';
     clientObject.email = '';
     clientObject.phone = '';
@@ -194,6 +199,10 @@ function resetObject() {
 
 function editClient(client) {
     console.log(client);
+}
+
+function generateId() {
+    return Math.random().toString(36).substring(2) + new Date().getTime().toString(36);
 }
 
 
