@@ -14,7 +14,7 @@ const tableClients = document.querySelector('#tabla-clientes');
 const btnDelete = document.querySelector('.btn-delete');
 const btnEdit = document.querySelector('.btn-edit');
 
-
+let editando = false;
 
 // Event Listeners
 
@@ -27,7 +27,6 @@ fechaInput.addEventListener('change', datosClient);
 formulario.addEventListener('submit', submitClient);
 
 // btns delete and edit
-
 
 // Object of client
 
@@ -48,6 +47,9 @@ function datosClient(e) {
 
 function submitClient(e) {
     e.preventDefault();
+
+    // object clients
+    
     
     console.log(clientObject);
     if(Object.values(clientObject).some(value => value.trim() === '')) {
@@ -58,18 +60,32 @@ function submitClient(e) {
         });
         return;
         
-    } else {
-        const client = new Clients();
-        client.addClient({...clientObject}); // Spread operator para crear una copia del objeto
-        formulario.reset();
+    } 
+    if(editando){
+        
+        console.log(clientObject);
+        clients.editClient({...clientObject});
+        formulario.querySelector('button[type="submit"]').textContent = 'Crear Cliente';
+        formulario.querySelector('button[type="submit"]').classList.remove('btn-edit');
+        editando = false;
+        new Notification({
+            title: 'Cliente',
+            message: 'Cliente editado correctamente',
+            type: 'success'
+        });
         resetObject();
 
+    } else {
+        clients.addClient({...clientObject});
         new Notification({
-            title: 'Correcto',
+            title: 'Cliente',
             message: 'Cliente agregado correctamente',
             type: 'success'
         });
+        resetObject();
     }
+    formulario.reset();
+    editando = false;
 }
 
 // slice para mostrar mensaje DE validacion
@@ -112,7 +128,6 @@ class Notification {
 class Clients {
     constructor() {
         this.clients = [];
-
     }
 
     addClient(client) {
@@ -121,17 +136,20 @@ class Clients {
         this.showClients();
     }
 
-    
+    editClient(clientUpdated) {
+        this.clients = this.clients.map(client => client.id === clientUpdated.id ? clientUpdated : client);
+        this.showClients();
+        console.log(this.clients);
+    }
+
+    deleteClient(id) {
+        this.clients = this.clients.filter(client => client.id !== id);
+        this.showClients();
+    }
 
     showClients() {
-        // Limpiar HTML
 
-        // while(tableClients.firstChild) {
-        //      tableClients.removeChild(tableClients.firstChild);
-        // }
-
-        // Generar HTML
-
+        clearTable();
 
         this.clients.forEach(client => {
             const divClient = document.createElement('div');
@@ -144,33 +162,26 @@ class Clients {
                 <span class="font-bold">Empresa:</span> ${client.company} <br>
                 <span class="font-bold">Fecha:</span> ${client.fecha} <br>
             `;
-            const btnDelete = document.createElement('button');
-            btnDelete.textContent = 'Eliminar';
-            btnDelete.classList.add('bg-red-500', 'hover:bg-red-700', 'text-white', 'font', 'p-2', 'rounded', 'shadow', 'btn-delete');
-
-            // copy client object
-            const clientObjectCopy = [...this.clients];
-
-            //event listener para eliminar cliente
-            btnDelete.onclick = () => {
-                editClient(clientObjectCopy);
-            }
-
-
-
             const btnEdit = document.createElement('button');
             btnEdit.textContent = 'Editar';
-            btnEdit.classList.add('bg-green-500', 'hover:bg-green-700', 'text-white', 'font', 'p-2', 'rounded', 'shadow', 'mr-2', 'btn-edit');
+            btnEdit.classList.add('text-white', 'bg-yellow-500', 'p-1', 'rounded', 'shadow');
+            btnEdit.classList.add('btn', 'btn-edit');
+            const clone = structuredClone(client);
+            btnEdit.onclick = () => cargarClient(clone);
 
-            //event listener para editar cliente
-            btnEdit.onclick = () => {
-                editClient(clientObjectCopy);
-                
+            const btnDelete = document.createElement('button');
+
+            btnDelete.classList.add('text-white', 'bg-red-500', 'p-1', 'rounded', 'shadow');
+            btnDelete.textContent = 'Eliminar';
+            btnDelete.classList.add('btn', 'btn-delete');
+            btnDelete.onclick = () => {
+                this.deleteClient(client.id);
+                new Notification({
+                    title: 'Cliente',
+                    message: 'Cliente eliminado correctamente',
+                    type: 'success'
+                });
             }
-            
-
-
-
 
             const contenedorBtns = document.createElement('div');
             contenedorBtns.classList.add('flex', 'justify-end', 'items-center');
@@ -186,8 +197,12 @@ class Clients {
     
 }
 
-// utilities
+// object clients
 
+const clients = new Clients();
+
+
+// utilities
 function resetObject() {
     clientObject.id = generateId();
     clientObject.name = '';
@@ -197,15 +212,46 @@ function resetObject() {
     clientObject.fecha = '';
 }   
 
-function editClient(client) {
+function cargarClient(client) {
+    
+    const {name, email, phone, company, fecha, id} = client;
+    clientObject.name = name;
+    clientObject.email = email;
+    clientObject.phone = phone;
+    clientObject.company = company;
+    clientObject.fecha = fecha;
+    clientObject.id = id;
+
+    clientNameInput.value = name;
+    emailInput.value = email;
+    phoneInput.value = phone;
+    companyInput.value = company;
+    // fechaInput.value = fecha;
+
+    formulario.querySelector('button[type="submit"]').textContent = 'Editar Cliente';
+    formulario.querySelector('button[type="submit"]').classList.add('btn-edit');
+    editando = true;
+
+    console.log(clientObject);
     console.log(client);
+
 }
 
 function generateId() {
     return Math.random().toString(36).substring(2) + new Date().getTime().toString(36);
 }
 
+function clearTable() {
+    while(tableClients.firstChild) {
+        tableClients.removeChild(tableClients.firstChild);
+    }
+}
 
 
+// add local storage
+
+function syncStorage() {
+    localStorage.setItem('clients', JSON.stringify(clients.clients));
+}
 
 
