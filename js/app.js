@@ -28,10 +28,54 @@ function datosClient(e) {
 function submitClient(e) {
     e.preventDefault();
     
-    if(Object.values(clientObject).includes('')) {
-        alert('Todos los campos son obligatorios');
+    if(Object.values(clientObject).some(value => value.trim() === '')) {
+        new Notification({
+            title: 'Error',
+            message: 'Todos los campos son obligatorios',
+            type: 'error'
+        });
+        
     } else {
-        console.log('Enviando datos...');
+        new Notification({
+            title: 'Correcto',
+            message: 'Cliente agregado correctamente',
+            type: 'success'
+        });
+    }
+}
+
+// slice para mostrar mensaje DE validacion
+
+
+class Notification {
+    constructor({title, message, type}) {
+        this.title = title;
+        this.message = message;
+        this.type = type;
+        this.show();
+    }
+
+    show() {
+
+        const prevAlert = document.querySelector('.notification');
+        prevAlert?.remove();
+        
+        const notification = document.createElement('div');
+        notification.classList.add('text-white', 'p-3', 'mb-3', 'text-center', 'rounded', 'font', 'notification');
+
+        notification.textContent = this.message;
+
+        if(this.type === 'error') {
+            notification.classList.add('bg-red-500');
+        } else {
+            notification.classList.add('bg-green-500');
+        }
+
+        formulario.insertBefore(notification, formulario.firstChild);
+
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
     }
 }
 
