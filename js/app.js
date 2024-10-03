@@ -26,7 +26,15 @@ fechaInput.addEventListener('change', datosClient);
 
 formulario.addEventListener('submit', submitClient);
 
-// btns delete and edit
+document.addEventListener('DOMContentLoaded', () => {
+
+    
+    if(localStorage.getItem('clients')) {
+        clientes = JSON.parse(localStorage.getItem('clients'));
+        clients.clients = clientes;
+        clients.showClients();
+    }
+});
 
 // Object of client
 
@@ -38,6 +46,8 @@ const clientObject = {
     company: '',
     fecha: ''
 }
+
+
 
 
 function datosClient(e) {
@@ -134,6 +144,8 @@ class Clients {
         this.clients = [...this.clients, client];
         console.log(this.clients);
         this.showClients();
+        // add to local storage
+        syncStorage();
     }
 
     editClient(clientUpdated) {
@@ -251,7 +263,9 @@ function clearTable() {
 // add local storage
 
 function syncStorage() {
+
     localStorage.setItem('clients', JSON.stringify(clients.clients));
+    
 }
 
 
